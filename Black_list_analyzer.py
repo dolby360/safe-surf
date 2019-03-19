@@ -26,7 +26,7 @@ class blackListAnalyze():
             for i in range(0, len(lisData)):
                 lis = list(map(lambda x:x.lower(),lisData[i]))
                 for j in lis:
-                    print 'j = ' + str(j) + ' popped = ' + str(popped)
+                    # print 'j = ' + str(j) + ' popped = ' + str(popped)
                     if j in popped:
                         print 'Alert this site suspecte as ' + str( self.blackList.getType(i) ) + 'site'
 
