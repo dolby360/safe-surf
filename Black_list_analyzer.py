@@ -1,7 +1,8 @@
 from multiprocessing import Process, Queue
 from firebase import firebase
 import socket 
-
+import time
+from time import gmtime, strftime
 
 
 class blackListAnalyze():
@@ -14,11 +15,8 @@ class blackListAnalyze():
         while True:
             print 'Ready'
             popped = q.get() 
-            if popped == 'Stop':
-                break
-            else:
-                print popped
-                self.check_if_this_web_in_black_list_or_suspected(popped)
+            print popped
+            self.check_if_this_web_in_black_list_or_suspected(popped)
 
     def check_if_this_web_in_black_list_or_suspected(self,popped):
         def check_if_bad(dns):

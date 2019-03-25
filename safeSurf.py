@@ -1,6 +1,9 @@
 from scapy.all import *
 from multiprocessing import Process, Queue
 from Black_list_analyzer import blackListAnalyze
+import time
+import socket
+from requestDataHolder import reqDataHolder 
 
 # disable verbose mode
 conf.verb = 0
@@ -14,18 +17,31 @@ q_as_reducer = Queue()
 p.start()
 
 
-def reduceRedundantQuery(q):
+def reduceRedundantQuery(q_reducer):
+        global q
         while True:
                 collector = []
-                while not q.empty():
-                        pass
-                        
+                while not q_reducer.empty():
+                        popped = q_reducer.get()
+                        print '-' + popped.queryName + '-'
+                        collector.append(popped)
+                        time.sleep(.300)
+                if len(collector) != 0:
+                        print len(collector)
+                        for i in range(0,len(collector) - 1):
+                                for j in range(0,len(collector) - 1):
+                                        if i != j and collector[i].queryName == collector[j].queryName:
+                                                collector.pop(j)
+                        for elem in collector:
+                                q.put(elem)  
+
+
 
 delayed_process = Process(target=reduceRedundantQuery,args=(q_as_reducer,))
-delayed_process.start
+delayed_process.start()
 
 def ShowDns(pkt):
-        global q
+        global q_as_reducer
         """poison dns request, search.yahoo.com and www.google.com will be 192.168.1.108 """
         """ parse dns request / response packet """
         if pkt and pkt.haslayer('UDP') and pkt.haslayer('DNS'):
@@ -40,36 +56,25 @@ def ShowDns(pkt):
         if int(udp.dport) == 53:
                 qname = dns.qd.qname
                 domain = qname[:-1]
+                t = strftime("%A,%d,%b,%Y,%H,%M,%S", gmtime()).split(',')
 
-                print("\n[*] request: %s:%d -> %s:%d : %s" % (ip.src, udp.sport, ip.dst, udp.dport, qname))
-                q.put(qname)
+                dataHolder = reqDataHolder()
+                dataHolder.ip_src = ip.src
+                dataHolder.udp_src_port = udp.sport 
+                dataHolder.ip_dst = ip.dst 
+                dataHolder.udp_dst_port = udp.dport
+                dataHolder.queryName = qname
+                dataHolder.day_in_week = t[0]
+                dataHolder.day_in_month = t[1]
+                dataHolder.month = t[2]
+                dataHolder.year = t[3]
+                dataHolder.hour = t[4]
+                dataHolder.minutes = t[5]
+                dataHolder.seconde = t[6]
+                q_as_reducer.put(dataHolder)
 
-                # # match posion domain (demo, maybe not explicit)
-                # if domain.lower() in (posion_table.keys()):
-
-                #         posion_ip = posion_table[domain]
-
-                #         # send a response packet to (dns request src host)
-                #         pkt_ip = IP(src=ip.dst,
-                #                 dst=ip.src)
-
-                #         pkt_udp = UDP(sport=udp.dport, dport=udp.sport)
-
-                #         # if id is 0 (default value) ;; Warning: ID mismatch
-                #         pkt_dns = DNS(id=dns.id,
-                #               qr=1,
-                #               qd=dns.qd,
-                #               an=DNSRR(rrname=qname, rdata=posion_ip))
-
-                #         print "[*] response: %s:%s <- %s:%d : %s - %s" % (
-                #         pkt_ip.dst, pkt_udp.dport,
-                #         pkt_ip.src, pkt_udp.sport,
-                #         pkt_dns['DNS'].an.rrname,
-                #         pkt_dns['DNS'].an.rdata)
-
-                #         send(pkt_ip/pkt_udp/pkt_dns)
-
-
+# This function never called 
+# For debugging only
 def dns_sniff(pkt):
     """ parse dns request / response packet """
     if pkt and pkt.haslayer('UDP') and pkt.haslayer('DNS'):
@@ -98,9 +103,7 @@ def dns_sniff(pkt):
 def main():
         # capture dns request and response
         # sniff(filter="udp port 53", prn=dns_sniff)
-
         sniff(filter="udp port 53", prn=ShowDns)
-
 
 if __name__ == "__main__":
         main()
