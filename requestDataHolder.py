@@ -16,6 +16,7 @@ class reqDataHolder():
         self.ip_dst = None
         self.udp_dst_port = None
         self.queryName = None
+        self.computerName = None
     def __repr__(self):
         return self.queryName
     def __str__(self):

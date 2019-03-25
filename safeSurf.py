@@ -3,40 +3,68 @@ from multiprocessing import Process, Queue
 from Black_list_analyzer import blackListAnalyze
 import time
 import socket
+import fcntl
+import struct
+import sys
 from requestDataHolder import reqDataHolder 
+import netifaces
 
 # disable verbose mode
 conf.verb = 0
 
+
+allComputersInSubnet = {}
+# we have to do that before activating the sniffer because it resolve computer name by 
+# sending dns request 
+def getAllComputersInSubnet():
+        # to get the start of the subnet
+        gws=netifaces.gateways()
+        routerIP=gws['default'].values()[0][0]
+        routerIP = str(routerIP).split('.')
+        routerIP.insert(1,'.')
+        routerIP.insert(3,'.')
+        routerIP.pop(5)
+        routerIP = ''.join(routerIP)
+        for i in range(0,255):
+                try:
+                        elem = socket.gethostbyaddr(routerIP + '.' + str(i))
+                        allComputersInSubnet[routerIP + '.' +str(i)] = elem[0]
+                except:
+                        pass
+        print allComputersInSubnet
+getAllComputersInSubnet()
+
+
 q = Queue()
 _blackListAnalyze = blackListAnalyze()
 p = Process(target=_blackListAnalyze.analyze_IP, args=(q,))
-
 q_as_reducer = Queue()
-
 p.start()
 
+
+# getCompProcess = Process(target=getAllComputersInSubnet)
+# getCompProcess.start()
 
 def reduceRedundantQuery(q_reducer):
         global q
         while True:
                 collector = []
                 while not q_reducer.empty():
+                        enterElem = True
                         popped = q_reducer.get()
-                        print '-' + popped.queryName + '-'
-                        collector.append(popped)
+                        for i in range(0,len(collector)):
+                                if popped.queryName == collector[i].queryName:
+                                        enterElem = False
+                                        break
+                        if enterElem == True:                
+                                collector.append(popped)
                         time.sleep(.300)
-                if len(collector) != 0:
-                        print len(collector)
-                        for i in range(0,len(collector) - 1):
-                                for j in range(0,len(collector) - 1):
-                                        if i != j and collector[i].queryName == collector[j].queryName:
-                                                collector.pop(j)
-                        for elem in collector:
-                                q.put(elem)  
-
-
-
+                        print '-----'
+                        print collector
+                for elem in collector:
+                        q.put(elem)  
+                time.sleep(.300)
+                        
 delayed_process = Process(target=reduceRedundantQuery,args=(q_as_reducer,))
 delayed_process.start()
 
@@ -71,6 +99,8 @@ def ShowDns(pkt):
                 dataHolder.hour = t[4]
                 dataHolder.minutes = t[5]
                 dataHolder.seconde = t[6]
+                # dataHolder.computerName = 
+                # print dataHolder.computerName
                 q_as_reducer.put(dataHolder)
 
 # This function never called 
@@ -98,7 +128,6 @@ def dns_sniff(pkt):
                         ip.dst, udp.dport,
                         ip.src, udp.sport,
                         dnsrr.rrname, dnsrr.rdata))
-
 
 def main():
         # capture dns request and response
