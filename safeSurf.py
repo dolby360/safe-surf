@@ -12,38 +12,18 @@ import netifaces
 # disable verbose mode
 conf.verb = 0
 
-
-allComputersInSubnet = {}
-# we have to do that before activating the sniffer because it resolve computer name by 
-# sending dns request 
-def getAllComputersInSubnet():
-        # to get the start of the subnet
-        gws=netifaces.gateways()
-        routerIP=gws['default'].values()[0][0]
-        routerIP = str(routerIP).split('.')
-        routerIP.insert(1,'.')
-        routerIP.insert(3,'.')
-        routerIP.pop(5)
-        routerIP = ''.join(routerIP)
-        for i in range(0,255):
-                try:
-                        elem = socket.gethostbyaddr(routerIP + '.' + str(i))
-                        allComputersInSubnet[routerIP + '.' +str(i)] = elem[0]
-                except:
-                        pass
-        print allComputersInSubnet
-getAllComputersInSubnet()
-
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.connect(("8.8.8.8", 80))
+thisComputerIP = str(s.getsockname()[0])
+s.close()
+# thisComputerIP = socket.gethostbyname(socket.gethostname())
+# print thisComputerIP
 
 q = Queue()
 _blackListAnalyze = blackListAnalyze()
 p = Process(target=_blackListAnalyze.analyze_IP, args=(q,))
 q_as_reducer = Queue()
 p.start()
-
-
-# getCompProcess = Process(target=getAllComputersInSubnet)
-# getCompProcess.start()
 
 def reduceRedundantQuery(q_reducer):
         global q
@@ -59,8 +39,6 @@ def reduceRedundantQuery(q_reducer):
                         if enterElem == True:                
                                 collector.append(popped)
                         time.sleep(.300)
-                        print '-----'
-                        print collector
                 for elem in collector:
                         q.put(elem)  
                 time.sleep(.300)
@@ -81,7 +59,7 @@ def ShowDns(pkt):
                 dns = pkt['DNS']
 
         # dns query packet
-        if int(udp.dport) == 53:
+        if int(udp.dport) == 53 and ip.src != thisComputerIP: 
                 qname = dns.qd.qname
                 domain = qname[:-1]
                 t = strftime("%A,%d,%b,%Y,%H,%M,%S", gmtime()).split(',')
@@ -99,7 +77,7 @@ def ShowDns(pkt):
                 dataHolder.hour = t[4]
                 dataHolder.minutes = t[5]
                 dataHolder.seconde = t[6]
-                # dataHolder.computerName = 
+                dataHolder.computerName = socket.gethostbyaddr(ip.src)[0]
                 # print dataHolder.computerName
                 q_as_reducer.put(dataHolder)
 

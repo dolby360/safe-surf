@@ -25,7 +25,7 @@ class blackListAnalyze():
                 for j in lis:
                     # print 'j = ' + str(j) + ' popped = ' + str(popped)
                     if j in popped.queryName:
-                        print 'Alert this site suspecte as ' + str( self.blackList.getType(i) ) + 'site'
+                        print 'Alert! the site: ' + popped.queryName + ' suspecte as ' + str( self.blackList.getType(i) ) + 'site'
 
         #TODO: I may need to do this with binary search.
         check_if_bad(popped)
