@@ -8,7 +8,7 @@ class reqDataHolder():
         self.day_in_month = None
         self.month = None
         self.year = None
-        self.minute = None
+        self.minutes = None
         self.seconde = None
         self.id = None
         self.MAC = None
@@ -36,9 +36,12 @@ class reqDataHolder():
 
     def getDate(self):
         return  str(self.day_in_month) + '/' + str(self.month) + '/' +  str(self.year)
+    
+    def getTime(self):
+        return str(self.hour) + ':' + str(self.minutes)
 
     def reportToCsvFile(self):
-        line = [self.computerName,self.queryName,self.ip_src,self.MAC,self.getDate()]
+        line = [self.computerName,self.queryName,self.ip_src,self.MAC,self.getDate(),self.getTime()]
         with open('history.csv', 'a') as f:
             writer = csv.writer(f)
             writer.writerow(line)
