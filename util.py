@@ -1,4 +1,4 @@
-
+import csv
 
 allComputersInSubnet = {}
 # we have to do that before activating the sniffer because it resolve computer name by 
@@ -19,4 +19,4 @@ def getAllComputersInSubnet():
                 except:
                         pass
         print allComputersInSubnet
-getAllComputersInSubnet()
+

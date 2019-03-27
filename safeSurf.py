@@ -53,6 +53,7 @@ def ShowDns(pkt):
         if pkt and pkt.haslayer('UDP') and pkt.haslayer('DNS'):
                 try:
                         ip = pkt['IP']
+                        eth = pkt['Ether']
                 except:
                         return
                 udp = pkt['UDP']
@@ -78,7 +79,7 @@ def ShowDns(pkt):
                 dataHolder.minutes = t[5]
                 dataHolder.seconde = t[6]
                 dataHolder.computerName = socket.gethostbyaddr(ip.src)[0]
-                # print dataHolder.computerName
+                dataHolder.MAC = eth.src
                 q_as_reducer.put(dataHolder)
 
 # This function never called 

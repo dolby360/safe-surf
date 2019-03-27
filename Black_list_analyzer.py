@@ -26,7 +26,7 @@ class blackListAnalyze():
                     # print 'j = ' + str(j) + ' popped = ' + str(popped)
                     if j in popped.queryName:
                         print 'Alert! the site: ' + popped.queryName + ' suspecte as ' + str( self.blackList.getType(i) ) + 'site'
-
+                        popped.reportToCsvFile()
         #TODO: I may need to do this with binary search.
         check_if_bad(popped)
 
