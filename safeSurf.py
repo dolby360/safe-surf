@@ -65,7 +65,7 @@ def ShowDns(pkt):
                 domain = qname[:-1]
                 t = strftime("%A,%d,%b,%Y,%H,%M,%S", gmtime()).split(',')
 
-                dataHolder = reqDataHolder()
+                dataHolder = reqDataHolder(sys.argv[1])
                 dataHolder.ip_src = ip.src
                 dataHolder.udp_src_port = udp.sport 
                 dataHolder.ip_dst = ip.dst 

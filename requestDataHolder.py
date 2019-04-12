@@ -2,7 +2,7 @@ import os
 import csv
 
 class reqDataHolder():
-    def __init__(self):
+    def __init__(self,path):
         self.hour = None
         self.day_in_week = None
         self.day_in_month = None
@@ -18,14 +18,15 @@ class reqDataHolder():
         self.udp_dst_port = None
         self.queryName = None
         self.computerName = None
+        self.path = path
 
         #check if dir exist if not create it
         def check_dir():
             try:
-                with open('history.csv', 'rb') as csvfile:
+                with open(self.path + '/history.csv', 'rb') as csvfile:
                     pass
             except:
-                with open('history.csv', 'wb') as csvfile:
+                with open(self.path + '/history.csv', 'wb') as csvfile:
                     pass
         check_dir()
 
@@ -42,6 +43,6 @@ class reqDataHolder():
 
     def reportToCsvFile(self):
         line = [self.computerName,self.queryName,self.ip_src,self.MAC,self.getDate(),self.getTime()]
-        with open('history.csv', 'a') as f:
+        with open(self.path + '/history.csv', 'a') as f:
             writer = csv.writer(f)
             writer.writerow(line)
