@@ -43,6 +43,7 @@ class reqDataHolder():
 
     def reportToCsvFile(self):
         line = [self.computerName,self.queryName,self.ip_src,self.MAC,self.getDate(),self.getTime()]
+        print line
         with open(self.path + '/history.csv', 'a') as f:
             writer = csv.writer(f)
             writer.writerow(line)

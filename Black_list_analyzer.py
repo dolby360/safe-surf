@@ -46,10 +46,15 @@ class blackListAnalyze():
         return make_any_item_in_list_string( get_list_from_data_base( data_type ) )
 
     def get_black_list_IPs(self):
-        self.blackList.Chatting =  self.get_data('chatting')
-        self.blackList.Porn = self.get_data('porn')
-        self.blackList.Gambling = self.get_data('gambling')
-
+        try:
+            raise Exception("ss")
+            # self.blackList.Chatting =  self.get_data('chatting')
+            # self.blackList.Porn = self.get_data('porn')
+            # self.blackList.Gambling = self.get_data('gambling')
+        except:
+            self.blackList.Chatting = [ "Tinder", "Omegle", "Chatroulette", "7 Cups", "Airtime", "BongaCams", "CAM4", "Chat-Avenue", "Discord", "Chaturbate", "Flirt4free", "Gitter", "Google Hangouts", "HipChat", "LiveJasmin", "Meebo Rooms", "MyFreeCams", "Megacams", "Rounds", "Streamup", "Talkomatic", "Tinychat", "TokBox", "Userplane", "Woo Media", "Xfire" ]
+            self.blackList.Porn = [ "PlayBoy", "PornPlanner", "MyPornBible", "Badjojo", "FindTubes", "LasMejoresWebsPorno", "PornMD", "Nudevista", "AdultVideoFinder", "IPornTV", "xVideos", "PornHub", "amster", "XNXX", "YouPorn", "YouJizz", "HClips", "Porn", "TnaFlix", "Tube8", "Spankbang", "DrTuber", "VPorn", "Spankwire", "KeezMovies", "Nuvid", "SunPorno", "PornHD", "Porn300", "SexVid", "ZbPorn", "XXXBunker", "Mofosex", "Xbabe", "PornDroids", "TubSexer", "BeFuck", "MasseurPorn", "Hdmovz", "PornRox", "PornMaki", "Pornid", "Inxporn", "Slutload", "ProPorn", "FakePorn", "Pornhost", "HandjobHub", "TubeV", "Vpornvideos", "DansMovies", "Fapdu", "Porn7", "Rude", "24Porn", "FreudBox", "PornHeed", "Orgasm", "PornRabbit", "MadThumbs", "Fux", "Eroxia", "DeviantClip", "Xxvids", "H2porn", "TopFreePornVideos", "ApeTube", "MetaPorn", "ElephantTube", "Long", "PornerBros" ]
+            self.blackList.Gambling = [ "jackpotparadise", "vegasparadise", "betatcasino", "casino", "partycasino", "slottyvegas", "dunder", "betway", "royalpanda" ]
 class TheBlackList():
     def __init__(self):
         self.Gambling = []

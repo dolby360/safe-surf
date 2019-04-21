@@ -8,7 +8,7 @@ import struct
 import sys
 from requestDataHolder import reqDataHolder 
 import netifaces
-
+import pytz
 # disable verbose mode
 conf.verb = 0
 
@@ -41,7 +41,7 @@ def reduceRedundantQuery(q_reducer):
                         time.sleep(.300)
                 for elem in collector:
                         q.put(elem)  
-                time.sleep(.300)
+                time.sleep(7)
                         
 delayed_process = Process(target=reduceRedundantQuery,args=(q_as_reducer,))
 delayed_process.start()
@@ -63,21 +63,23 @@ def ShowDns(pkt):
         if int(udp.dport) == 53 and ip.src != thisComputerIP: 
                 qname = dns.qd.qname
                 domain = qname[:-1]
-                t = strftime("%A,%d,%b,%Y,%H,%M,%S", gmtime()).split(',')
-
+                # t = datetime.now().strftime("%A,%d,%b,%Y,%H,%M,%S").split(',')
+                date = time.strftime("%d/%m/%y")
+                now = datetime.now()#(tz=pytz.timezone('Israel'))
+                
                 dataHolder = reqDataHolder(sys.argv[1])
                 dataHolder.ip_src = ip.src
                 dataHolder.udp_src_port = udp.sport 
                 dataHolder.ip_dst = ip.dst 
                 dataHolder.udp_dst_port = udp.dport
                 dataHolder.queryName = qname
-                dataHolder.day_in_week = t[0]
-                dataHolder.day_in_month = t[1]
-                dataHolder.month = t[2]
-                dataHolder.year = t[3]
-                dataHolder.hour = t[4]
-                dataHolder.minutes = t[5]
-                dataHolder.seconde = t[6]
+                # dataHolder.day_in_week = t[0]
+                dataHolder.day_in_month = time.strftime("%d")
+                dataHolder.month = time.strftime("%m")
+                dataHolder.year = time.strftime("%y")
+                dataHolder.hour = now.hour
+                dataHolder.minutes = now.minute
+
                 dataHolder.computerName = socket.gethostbyaddr(ip.src)[0]
                 dataHolder.MAC = eth.src
                 q_as_reducer.put(dataHolder)
